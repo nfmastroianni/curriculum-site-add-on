@@ -1,0 +1,9 @@
+{
+  "name": "curriculum-site-add-on",
+  "version": "1.0.0",
+  "main": "Code.js",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/google-apps-script": "^1.0.53"
+  }
+}

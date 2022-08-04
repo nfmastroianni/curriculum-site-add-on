@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <script
+      src="https://unpkg.com/vue@3.2.37/dist/vue.global.prod.js"
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    ></script>
+    <!-- UIkit CSS -->
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/uikit@3.15.1/dist/css/uikit.min.css"
+    />
+
+    <!-- UIkit JS -->
+    <script src="https://cdn.jsdelivr.net/npm/uikit@3.15.1/dist/js/uikit.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/uikit@3.15.1/dist/js/uikit-icons.min.js"></script>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  </head>
+  <body>
+    <div id="app">
+      <!-- HEADER -->
+      <header
+        class="uk-flex uk-flex-center uk-flex-middle uk-light"
+        style="padding: 0.375rem 0; background-color: #064e3b"
+      >
+        <div>
+          <img
+            src="https://www.longbranch.k12.nj.us/cms/lib/NJ01001766/Centricity/Template/GlobalAssets/images///logos/LBPS%20Seal%20-%20Together%20We%20Can.png"
+            alt=""
+            width="35"
+            height="35"
+          />
+        </div>
+        <div class="uk-text-small uk-margin-left">
+          Curriculum &amp; Instruction
+        </div>
+      </header>
+      <!-- END HEADER -->
+      <!-- PAGE TITLE -->
+      <h1 class="uk-heading-line uk-text-center uk-margin-remove-top">
+        <span>Add Curriculum</span>
+      </h1>
+      <!-- END PAGE TITLE -->
+      <!-- FORM -->
+      <div class="uk-container">
+        <form>
+          <!-- PUBLISH? -->
+          <fieldset class="uk-border-rounded uk-padding-small">
+            <p class="uk-text-center uk-text-bold">Publish this Curriculum?</p>
+            <div class="uk-flex uk-flex-between uk-flex-middle">
+              <label for="published">
+                Ready to Publish? <br />
+                <span class="uk-text-small">(blank for unpublished)</span>
+              </label>
+              <input
+                id="published"
+                type="checkbox"
+                name="published"
+                class="uk-checkbox"
+                v-model="row[0]"
+              />
+            </div>
+          </fieldset>
+          <!-- END PUBLISH -->
+          <!-- COURSE DETAILS -->
+          <fieldset class="uk-border-rounded uk-padding-small">
+            <p class="uk-text-center uk-text-bold">Curriculum Details</p>
+            <div class="uk-margin-small">
+              <label for="courseTitle">
+                Course Title
+                <input
+                  type="text"
+                  name="courseTitle"
+                  class="uk-input"
+                  placeholder="Enter Course Title..."
+                  v-model="row[1]"
+                  @blur="checkForDanger(1, 'courseTitle')"
+                  :class="{'uk-form-danger': errors.courseTitle === true, 'uk-form-success': errors.courseTitle === false }"
+                />
+              </label>
+            </div>
+            <div class="uk-margin-small">
+              <label for="gradeSpan">
+                Grade Span
+                <select
+                  v-model="row[2]"
+                  class="uk-select"
+                  :class="{'uk-form-danger': errors.gradeSpan && row[0], 'uk-form-success': errors.gradeSpan === false && row[0]}"
+                  name="gradeSpan"
+                  @blur="checkForDanger(2, 'gradeSpan')"
+                >
+                  <option v-for="span in gradeSpans">{{span}}</option>
+                </select>
+              </label>
+            </div>
+            <div class="uk-margin-small">
+              <label for="gradeLevel">
+                Grade Level
+                <select
+                  v-model="row[3]"
+                  class="uk-select"
+                  name="gradeLevel"
+                  name="gradeLevel"
+                  :class="{'uk-form-danger': errors.gradeLevel && row[0], 'uk-form-success': errors.gradeLevel === false && row[0]}"
+                  @blur="checkForDanger(3, 'gradeLevel')"
+                >
+                  <option v-for="grade in gradeLevels" :value="grade">
+                    {{grade}}
+                  </option>
+                </select>
+              </label>
+            </div>
+            <div class="uk-margin-small">
+              <label for="contentArea">
+                Content Area
+                <select
+                  v-model="row[4]"
+                  class="uk-select"
+                  name="contentArea"
+                  :class="{'uk-form-danger': errors.contentArea && row[0], 'uk-form-success': errors.contentArea === false && row[0]}"
+                  @blur="checkForDanger(4, 'contentArea')"
+                >
+                  <option v-for="area in contentAreas" :value="area">
+                    {{area}}
+                  </option>
+                </select>
+              </label>
+            </div>
+          </fieldset>
+          <!-- END COURSE DETAILS -->
+          <!-- COURSE FILES -->
+          <fieldset class="uk-border-rounded uk-padding-small">
+            <p class="uk-text-center uk-text-bold">Course Files</p>
+            <div class="uk-margin-small">
+              <label for="guideUrl">
+                Curriculum Guide URL (pdf)
+                <input
+                  v-model="row[5]"
+                  type="text"
+                  name="guideUrl"
+                  class="uk-input"
+                  placeholder="Enter URL to Guide..."
+                  :class="{'uk-form-danger': errors.guideUrl && row[0], 'uk-form-success': errors.guideUrl === false && row[0]}"
+                  @blur="checkForDanger(5, 'guideUrl')"
+                />
+              </label>
+            </div>
+            <div class="uk-margin-small">
+              <label for="calendarUrl">
+                Pacing Calendar URL (pdf)
+                <input
+                  v-model="row[6]"
+                  type="text"
+                  name="calendarUrl"
+                  class="uk-input"
+                  placeholder="Enter URL to Calendar..."
+                  :class="{'uk-form-danger': errors.calendarUrl && row[0], 'uk-form-success': errors.calendarUrl === false && row[0]}"
+                  @blur="checkForDanger(6, 'calendarUrl')"
+                />
+              </label>
+            </div>
+          </fieldset>
+          <!-- END COURSE FILES -->
+          <!-- SUBMIT BUTTON -->
+          <button
+            class="uk-button uk-button-default uk-button-large uk-width-1-1"
+            @click.prevent="addCurriculum"
+            :disabled="disabledAdd === true"
+          >
+            Add Curriculum
+          </button>
+          <!-- END SUBMIT BUTTON -->
+        </form>
+      </div>
+      <!-- END FORM -->
+    </div>
+
+    <script>
+      const { createApp } = Vue
+
+      createApp({
+        data() {
+          return {
+            contentAreas: [
+              'English Language Arts',
+              'Health & Physical Education',
+              'Industrial Arts',
+              'Mathematics',
+              'Science',
+              'Social Studies',
+              'Visual & Performing Arts',
+              'World Language',
+            ],
+            disabledAdd: false,
+            errors: {
+              courseTitle: null,
+              gradeSpan: null,
+              gradeLevel: null,
+              contentArea: null,
+              guideUrl: null,
+              calendarUrl: null,
+            },
+            gradeLevels: [
+              'Pre-K',
+              'K',
+              '1',
+              '2',
+              'K-2',
+              '3',
+              '4',
+              '5',
+              '3-5',
+              '4-5',
+              '6',
+              '7',
+              '8',
+              '6-8',
+              '9',
+              '10',
+              '11',
+              '12',
+              '9-12',
+              'K-12',
+            ],
+            gradeSpans: ['Pre-K', 'K-5', '6-8', '9-12'],
+            row: ['', '', '', '', '', '', ''],
+            lastRow: null,
+          }
+        },
+        created() {
+          google.script.run
+            .withSuccessHandler((lr) => {
+              this.lastRow = lr
+            })
+            .getLastRow()
+        },
+        methods: {
+          addCurriculum() {
+            this.disabledAdd = true
+            const errorValues = Object.values(this.errors)
+            if (this.row.indexOf('') >= 0 && this.row[0]) {
+              // EXECUTE IF PUBLISHED IS CHECKED BUT FIELD(S) IS/ARE EMPTY
+              UIkit.notification({
+                message: 'Missing Information - Please Complete',
+                status: 'danger',
+                pos: 'bottom-center',
+                timeout: 7000,
+              })
+              this.disabledAdd = false
+            } else if (this.row[1] === '') {
+              // EXECUTE IF PUBLISHED NOT CHECKED BUT NO TITLE PROVIDED
+              UIkit.notification({
+                message: 'Course Title Needed - Please Complete',
+                status: 'danger',
+                pos: 'bottom-center',
+                timeout: 7000,
+              })
+            } else {
+              google.script.run
+                .withFailureHandler((e) => {
+                  UIkit.notification({
+                    message:
+                      'Row Not Added - Contact nmastroianni@longbranch.k12.nj.us',
+                    status: 'danger',
+                    pos: 'bottom-center',
+                    timeout: 7000,
+                  })
+                })
+                .withSuccessHandler((e) => {
+                  this.row.forEach((r, i) => {
+                    this.row[i] = ''
+                  })
+                  Object.keys(this.errors).forEach((key) => {
+                    this.errors[key] = null
+                  })
+                  window.scrollTo({ top: 0, behavior: 'smooth' })
+                  this.disabledAdd = false
+                })
+                .addCurriculum(this.row)
+            }
+          },
+          checkForDanger(col, prop) {
+            if (!this.row[col]) {
+              this.errors[prop] = true
+            } else {
+              this.errors[prop] = false
+            }
+          },
+        },
+      }).mount('#app')
+    </script>
+  </body>
+</html>
