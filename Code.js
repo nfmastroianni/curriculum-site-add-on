@@ -89,11 +89,24 @@ const saveChanges = (data, rowNumber) => {
  * It sends a POST request to a Netlify build hook
  */
 const triggerRebuild = () => {
-  const url = 'https://api.netlify.com/build_hooks/62ea616f82b1670059d05d98'
-  const options = {
-    method: 'POST',
+  const { github_token } =
+    PropertiesService.getScriptProperties().getProperties()
+  const url =
+    'https://api.github.com/repos/nfmastroianni/gatsby-lbps-curriculum/dispatches'
+  const postData = {
+    event_type: 'Triggered by Curriculum Google Sheet',
   }
-  UrlFetchApp.fetch(url, options)
+  const options = {
+    method: 'post',
+    headers: {
+      Accept: 'application/vnd.github+json',
+      Authorization: 'token ' + github_token,
+    },
+    muteHttpExceptions: true,
+    payload: JSON.stringify(postData),
+  }
+  const response = UrlFetchApp.fetch(url, options)
+  Logger.log(response)
   alertRebuild()
 }
 
@@ -108,7 +121,7 @@ const alertRebuild = () => {
   const ui = SpreadsheetApp.getUi()
   ui.alert(
     'Website Rebuild Initiated',
-    'Please check the website in about 2 minutes to view the changes.',
+    'Please check the website in about 5 minutes to view the changes.',
     ui.ButtonSet.OK
   )
 }
